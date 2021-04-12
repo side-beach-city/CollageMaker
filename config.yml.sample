@@ -1,0 +1,6 @@
+dir: target dir
+filepattern:
+  - filepatterns
+  - filepatterns
+exclude: exclude filename(endswith)
+centerlogo: centerlogo
