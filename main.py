@@ -4,6 +4,7 @@ import shutil
 
 import yaml
 import cv2
+from tqdm import tqdm
 import numpy as np
 
 class Point:
@@ -38,7 +39,8 @@ time.sleep(0.1)
 work.mkdir()
 
 # Convert to 4:3 image
-for i, f in enumerate(fl):
+print(f"> Convert to 4:3 image")
+for i, f in enumerate(tqdm(list(fl))):
   img = None
   img2 = None
   canvas = None
@@ -66,6 +68,7 @@ for i, f in enumerate(fl):
     del img
     del img2
     del canvas
+print(f"Finished")
 
 # Make collage
 
