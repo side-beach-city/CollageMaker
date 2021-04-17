@@ -82,7 +82,7 @@ canvas = None
 scenter = Point(yx=center.shape[:2])
 try:
   # Calculation size
-  c = math.ceil(len(fl) / 2)
+  c = math.ceil(len(fl) / 4)
   y = scenter.y / c
   soneimg = Point(y / 3 * 4, y) # Size of one image(4:3)
   y = y * c
@@ -90,12 +90,13 @@ try:
   canvas = np.ones((scanvas.y, scanvas.x, 3), np.uint8) * 255
   # Placement of individual images
   print("> Placement of individual images")
+  xlist = (0, soneimg.x, scanvas.x - soneimg.x * 2, scanvas.x - soneimg.x)
   for i, f in enumerate(tqdm(list(fl))):
     inpa = np.fromfile(str(f), dtype=np.uint8)
     img = cv2.imdecode(inpa, cv2.IMREAD_COLOR)
     img2 = cv2.resize(img, dsize=(soneimg.x, soneimg.y), interpolation=cv2.INTER_LANCZOS4)
     try:
-      poneimg = Point(0 if i % 2 == 0 else scanvas.x - soneimg.x, soneimg.y * (i // 2))
+      poneimg = Point(xlist[i % 4], soneimg.y * (i // 4))
       canvas[poneimg.y: poneimg.y + soneimg.y, poneimg.x:poneimg.x + soneimg.x] = img2[0:soneimg.y, 0:soneimg.x]
     finally:
       del inpa
