@@ -1,6 +1,7 @@
 from pathlib import Path
 import time
 import shutil
+import math
 
 import yaml
 import cv2
@@ -30,6 +31,7 @@ fl = []
 for f in config["filepattern"]:
   fl += list(p.glob(f))
 fl = filter(lambda f: not f.name.endswith(config["exclude"]), fl)
+centerlogo = p / config["centerlogo"]
 
 # prepare
 work = Path("work")
@@ -71,4 +73,50 @@ for i, f in enumerate(tqdm(list(fl))):
 print(f"Finished")
 
 ## Make collage
-
+print(">> Make collage")
+work = Path("work")
+fl = list(work.glob("*.png"))
+npa = np.fromfile(str(f), dtype=np.uint8)
+center = cv2.imdecode(npa, cv2.IMREAD_COLOR)
+canvas = None
+scenter = Point(yx=center.shape[:2])
+try:
+  # Calculation size
+  c = math.ceil(len(fl) / 2)
+  y = scenter.y / c
+  soneimg = Point(y / 3 * 4, y) # Size of one image(4:3)
+  y = y * c
+  scanvas = Point(y / 9 * 16, y) # Overall image size(16:9)
+  canvas = np.ones((scanvas.y, scanvas.x, 3), np.uint8) * 255
+  # Placement of individual images
+  print("> Placement of individual images")
+  for i, f in enumerate(tqdm(list(fl))):
+    inpa = np.fromfile(str(f), dtype=np.uint8)
+    img = cv2.imdecode(inpa, cv2.IMREAD_COLOR)
+    img2 = cv2.resize(img, dsize=(soneimg.x, soneimg.y), interpolation=cv2.INTER_LANCZOS4)
+    try:
+      poneimg = Point(0 if i % 2 == 0 else scanvas.x - soneimg.x, soneimg.y * (i // 2))
+      canvas[poneimg.y: poneimg.y + soneimg.y, poneimg.x:poneimg.x + soneimg.x] = img2[0:soneimg.y, 0:soneimg.x]
+    finally:
+      del inpa
+      del img
+      del img2
+  print("Finished")
+  # Placement of center logo
+  print("> Placement of center logo")
+  inpa = np.fromfile(str(centerlogo), dtype=np.uint8)
+  img = cv2.imdecode(inpa, cv2.IMREAD_COLOR)
+  img2 = cv2.resize(img, dsize=(scanvas.y, scanvas.y), interpolation=cv2.INTER_LANCZOS4)
+  try:
+    soneimg = Point(yx=img2.shape[:2])
+    poneimg = Point(scanvas.x / 2 - soneimg.x / 2, scanvas.y / 2 - soneimg.y / 2)
+    canvas[poneimg.y: poneimg.y + soneimg.y, poneimg.x:poneimg.x + soneimg.x] = img2[0:soneimg.y, 0:soneimg.x]
+    print("Finished")
+  finally:
+    del inpa
+    del img
+  cv2.imwrite(f"out.png", canvas)
+  print("All Finished!!")
+finally:
+  del npa
+  del center
