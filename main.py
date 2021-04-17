@@ -38,7 +38,7 @@ if work.exists():
 time.sleep(0.1)
 work.mkdir()
 
-# Convert to 4:3 image
+## Convert to 4:3 image
 print(f"> Convert to 4:3 image")
 for i, f in enumerate(tqdm(list(fl))):
   img = None
@@ -70,5 +70,5 @@ for i, f in enumerate(tqdm(list(fl))):
     del canvas
 print(f"Finished")
 
-# Make collage
+## Make collage
 
