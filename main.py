@@ -27,10 +27,15 @@ with open("config.yml", "r", encoding="UTF-8") as f:
   config = yaml.safe_load(f)
 
 p = Path(config["dir"])
+defimg = p / Path(config["default"])
 fl = []
 for f in config["filepattern"]:
   fl += list(p.glob(f))
 fl = list(filter(lambda f: not f.name.endswith(config["exclude"]), fl))
+if len(fl) % 4 != 0:
+  print(f"> Fill in the margins")
+  for i in tqdm(range(4 - (len(fl) % 4))):
+    fl.append(defimg)
 centerlogo = p / config["centerlogo"]
 
 # prepare
