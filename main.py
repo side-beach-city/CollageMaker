@@ -27,14 +27,17 @@ with open("config.yml", "r", encoding="UTF-8") as f:
   config = yaml.safe_load(f)
 
 p = Path(config["dir"])
+images = int(config["cornerimages"])
+imagesd = images * 2
+
 defimg = p / Path(config["default"])
 fl = []
 for f in config["filepattern"]:
   fl += list(p.glob(f))
 fl = list(filter(lambda f: not f.name.endswith(config["exclude"]), fl))
-if len(fl) % 4 != 0:
+if len(fl) % imagesd != 0:
   print(f"> Fill in the margins")
-  for i in tqdm(range(4 - (len(fl) % 4))):
+  for i in tqdm(range(imagesd - (len(fl) % imagesd))):
     fl.append(defimg)
 centerlogo = p / config["centerlogo"]
 
@@ -87,7 +90,7 @@ canvas = None
 scenter = Point(yx=center.shape[:2])
 try:
   # Calculation size
-  c = math.ceil(len(fl) / 4)
+  c = math.ceil(len(fl) / imagesd)
   y = scenter.y / c
   soneimg = Point(y / 3 * 4, y) # Size of one image(4:3)
   y = y * c
@@ -95,13 +98,18 @@ try:
   canvas = np.ones((scanvas.y, scanvas.x, 3), np.uint8) * 255
   # Placement of individual images
   print("> Placement of individual images")
-  xlist = (0, soneimg.x, scanvas.x - soneimg.x * 2, scanvas.x - soneimg.x)
+  # Create xlist
+  xlist = []
+  for n in range(images):
+  	xlist.append(soneimg.x * n)
+  for n in range(images):
+  	xlist.append(scanvas.x - soneimg.x * (images - n))
   for i, f in enumerate(tqdm(list(fl))):
     inpa = np.fromfile(str(f), dtype=np.uint8)
     img = cv2.imdecode(inpa, cv2.IMREAD_COLOR)
     img2 = cv2.resize(img, dsize=(soneimg.x, soneimg.y), interpolation=cv2.INTER_LANCZOS4)
     try:
-      poneimg = Point(xlist[i % 4], soneimg.y * (i // 4))
+      poneimg = Point(xlist[i % imagesd], soneimg.y * (i // imagesd))
       canvas[poneimg.y: poneimg.y + soneimg.y, poneimg.x:poneimg.x + soneimg.x] = img2[0:soneimg.y, 0:soneimg.x]
     finally:
       del inpa

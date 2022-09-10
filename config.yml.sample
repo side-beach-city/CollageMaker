@@ -1,6 +1,8 @@
 dir: target dir
+default: default image name
 filepattern:
   - filepatterns
   - filepatterns
 exclude: exclude filename(endswith)
 centerlogo: centerlogo
+cornerimages: 2
