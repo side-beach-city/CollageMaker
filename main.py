@@ -39,6 +39,8 @@ if len(fl) % imagesd != 0:
   print(f"> Fill in the margins")
   for i in tqdm(range(imagesd - (len(fl) % imagesd))):
     fl.append(defimg)
+for l in fl:
+  print(l.name)
 centerlogo = p / config["centerlogo"]
 
 # prepare
