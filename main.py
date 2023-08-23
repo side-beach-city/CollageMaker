@@ -39,6 +39,8 @@ if len(fl) % imagesd != 0:
   print(f"> Fill in the margins")
   for i in tqdm(range(imagesd - (len(fl) % imagesd))):
     fl.append(defimg)
+# Sort from filename
+fl = sorted(fl, key=lambda fn: (int(fn.name.split('-')[0]) if '-' in fn.name else float('inf')))
 for l in fl:
   print(l.name)
 centerlogo = p / config["centerlogo"]
@@ -52,7 +54,7 @@ work.mkdir()
 
 ## Convert to 4:3 image
 print(f"> Convert to 4:3 image")
-for i, f in enumerate(tqdm(sorted(fl, key=lambda p: p.stem))):
+for i, f in enumerate(tqdm(fl)):
   img = None
   img2 = None
   canvas = None
@@ -74,7 +76,7 @@ for i, f in enumerate(tqdm(sorted(fl, key=lambda p: p.stem))):
     canvas[ctl.y: ctl.y + simage.y, ctl.x: ctl.x + simage.x] = \
       img[stl.y: stl.y + simage.y, stl.x: stl.x + simage.x]
     img2 = cv2.resize(canvas, dsize=(IM.x, IM.y), interpolation=cv2.INTER_LANCZOS4)
-    cv2.imwrite(f"work/{i + 1:02}.png", img2)
+    cv2.imwrite(f"work/{i + 1:03}.png", img2)
   finally:
     del npa
     del img
